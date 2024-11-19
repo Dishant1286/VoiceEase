@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text-to-Audio Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    textarea {
+      width: 90%;
+      height: 100px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Text-to-Audio Generator</h1>
+  <form id="text-form">
+    <textarea id="text-input" placeholder="Enter text here"></textarea><br>
+    <button type="submit">Generate Audio</button>
+  </form>
+  <div class="result" id="result"></div>
+
+  <script>
+    document.getElementById('text-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      
+      const text = document.getElementById('text-input').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = 'Processing...';
+
+      if (!text) {
+        resultDiv.textContent = 'Please enter some text.';
+        return;
+      }
+
+      try {
+        const response = await fetch('<API_GATEWAY_URL>', { // Replace with your API Gateway URL
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text }),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          resultDiv.textContent = result.message;
+        } else {
+          resultDiv.textContent = `Error: ${result.message || 'Unable to process the request'}`;
+        }
+      } catch (error) {
+        resultDiv.textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
