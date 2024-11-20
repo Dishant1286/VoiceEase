@@ -121,7 +121,7 @@
                     // Update the UI to show the audio player and the message
                     document.getElementById('audio-player').src = data.audioUrl;
                     document.getElementById('audio-player').style.display = 'block'; // Show the player
-                    document.getElementById('success-message').textContent = data.message;
+                    document.getElementById('success-message').textContent = data.disp;
                     document.getElementById('error-message').textContent = ''; // Clear any error message
                 } else {
                     throw new Error('Audio URL is missing from the response');
