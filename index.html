@@ -3,7 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text-to-Audio Generator</title>
+    <title>Text-to-Audio Gener<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VoiveEase</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        color: #212529;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #2c3e50;
+        text-align: center;
+        text-shadow: 1px 1px 2px #ccc;
+      }
+      h3 {
+        margin: 0px;
+      }
+
+      textarea {
+        width: 80%;
+        max-width: 600px;
+        padding: 12px;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        margin-top: 50px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        resize: none;
+        background-color: #f8f9fa;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #4caf50;
+        box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+      }
+
+      select,
+      button {
+        padding: 12px;
+        margin: 10px 0;
+        font-size: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #fff;
+      }
+
+      select:focus,
+      button:focus {
+        outline: none;
+        box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+      }
+
+      .select-container {
+        display: flex;
+        gap: 10px; /* Add spacing between the dropdowns */
+        margin: 20px 0; /* Add margin above and below the container */
+        align-items: center;
+      }
+
+      select {
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+        flex: 1; /* Ensures dropdowns are equally spaced */
+      }
+
+      select:first-child {
+        max-width: 200px; /* Language select specific width */
+      }
+
+      select:last-child {
+        max-width: 300px; /* Voice select specific width */
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      button:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+      }
+
+      audio {
+        margin-top: 20px;
+        width: 100%;
+        max-width: 600px;
+        border-radius: 5px;
+        background-color: #e9ecef;
+        padding: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      #messages {
+        margin-top: 20px;
+        font-size: 1rem;
+        color: #e74c3c;
+        text-align: center;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>VoiceEase</h1>
+    <h3>Text to Audio Generator</h3>
+    <textarea
+      id="text-input"
+      placeholder="Enter text to generate audio"
+      rows="5"
+    ></textarea>
+    <div class="slect-container">
+      <select id="language-select" onchange="updateVoices()">
+        <option value="en-US">English (US)</option>
+        <option value="de-DE">German</option>
+        <option value="fr-FR">French</option>
+        <option value="es-ES">Spanish</option>
+        <option value="hi-IN">Hindi</option>
+      </select>
+      <select id="voice-select">
+        <!-- Voices will update based on language selection -->
+      </select>
+    </div>
+    <br />
+    <button onclick="generateAudio()">Generate Audio</button>
+    <audio id="audio-player" controls></audio>
+    <div id="messages"></div>
+
+    <script>
+      const voices = {
+        "en-US": [
+          { name: "Joanna", label: "Joanna (Female)" },
+          { name: "Matthew", label: "Matthew (Male)" },
+        ],
+        "de-DE": [
+          { name: "Vicki", label: "Vicki (Female)" },
+          { name: "Hans", label: "Hans (Male)" },
+        ],
+        "fr-FR": [
+          { name: "Celine", label: "Celine (Female)" },
+          { name: "Mathieu", label: "Mathieu (Male)" },
+        ],
+        "es-ES": [
+          { name: "Lucia", label: "Lucia (Female)" },
+          { name: "Enrique", label: "Enrique (Male)" },
+        ],
+        "hi-IN": [{ name: "Aditi", label: "Aditi (Female)" }],
+      };
+
+      function updateVoices() {
+        const language = document.getElementById("language-select").value;
+        const voiceSelect = document.getElementById("voice-select");
+        voiceSelect.innerHTML = "";
+
+        voices[language].forEach((voice) => {
+          const option = document.createElement("option");
+          option.value = voice.name;
+          option.textContent = voice.label;
+          voiceSelect.appendChild(option);
+        });
+      }
+
+      async function generateAudio() {
+        const text = document.getElementById("text-input").value;
+        const voice = document.getElementById("voice-select").value;
+        const apiUrl =
+          "https://5lcve0fvqf.execute-api.us-east-1.amazonaws.com/dev"; // Replace with your API Gateway URL
+
+        try {
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, voice }),
+          });
+
+          const data = await response.json();
+
+          if (data.audioUrl) {
+            document.getElementById("audio-player").src = data.audioUrl;
+            document.getElementById("messages").textContent =
+              "Audio generated successfully!";
+          } else {
+            throw new Error("Audio URL is missing in the response");
+          }
+        } catch (error) {
+          document.getElementById("messages").textContent =
+            "Error generating audio.";
+          console.error(error);
+        }
+      }
+
+      // Initialize with default language
+      updateVoices();
+    </script>
+  </body>
+</html>
+ator</title>
     <style>
         /* General styling for the page */
         body {
